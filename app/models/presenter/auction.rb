@@ -6,6 +6,8 @@ module Presenter
     include ActionView::Helpers::DateHelper   # distance_of_time_in_words
     include ActionView::Helpers::NumberHelper # number_to_currency
 
+    # This has two concepts: should I show the button, and can I bid
+    # separate!
     def user_can_bid?(user)
       if !available? # not_avaliable?
         false
@@ -22,6 +24,9 @@ module Presenter
       current_bid_record != nil
     end
 
+    # highlighted_bid
+    # 1) single bid (RENAME): current user's bid on this auction
+    # 2) multi bid (RENAME): winning bid.
     def current_bid
       return Presenter::Bid::Null.new unless current_bid_record
       Presenter::Bid.new(current_bid_record)
@@ -89,43 +94,21 @@ module Presenter
       Presenter::DcTime.convert_and_format(model.end_datetime)
     end
 
-    # --- the next three methods are all the same except for the attribute
-    # there should be something to deal with this
     def starts_in
-      distance = distance_of_time_in_words(Time.now, model.start_datetime)
-      if model.start_datetime < Time.now
-        "#{distance} ago"
-      else
-        "in #{distance}"
-      end
+      Presenter::TimeInWords.convert(model.start_datetime)
     end
 
     def ends_in
-      distance = distance_of_time_in_words(Time.now, model.end_datetime)
-      if model.end_datetime < Time.now
-        "#{distance} ago"
-      else
-        "in #{distance}"
-      end
+      Presenter::TimeInWords.convert(model.end_datetime)
     end
 
     def delivery_deadline_expires_in
-      distance = distance_of_time_in_words(Time.now, model.delivery_deadline)
-      if model.delivery_deadline < Time.now
-        "#{distance} ago"
-      else
-        "in #{distance}"
-      end
+      Presenter::TimeInWords.convert(model.delivery_deadline)
     end
 
     # isn't the same as starts_in?
     def human_start_time
-      if start_datetime < Time.now
-        # this method comes from the included date helpers
-        "#{distance_of_time_in_words(Time.now, start_datetime)} ago"
-      else
-        "in #{distance_of_time_in_words(Time.now, start_datetime)}"
-      end
+      starts_in
     end
 
     # rubocop:disable Style/DoubleNegation
@@ -170,9 +153,9 @@ module Presenter
     end
 
     def formatted_type
-      if model.type == 'multi_bid'
+      if multi_bid?
         'multi-bid'
-      elsif model.type = 'single_bid'
+      elsif single_bid?
         'single-bid'
       else
         # nil ??
@@ -224,7 +207,43 @@ module Presenter
       bids.sort_by(&:amount).first.amount
     end
 
+    class NullBidUser
+      def intialize(user, bids)
+      end
+
+      def has_bid?
+        false
+      end
+
+      def my_bids
+        []
+      end
+    end
+
+    class BidUser
+      attr_accessor :user, :bids
+
+      def intialize(user, bids)
+        @user = user
+        @bids = bids
+      end
+
+      def has_bid? # change to !my_bids.empty?
+        bids.detect {|b| user.id == b.bidder_id } != nil
+      end
+
+      def my_bids
+        bids.select {|b| user.id == b.bidder_id }
+      end
+    end
+
+    def bid_user
+      # if-else to get to the right instance
+    end
+
+
     def user_is_bidder?(user)
+      # bid_user.has_bids?
       return false if user.nil?
       bids.detect {|b| user.id == b.bidder_id } != nil
     end

@@ -13,6 +13,7 @@ module Presenter
       end
 
       def tag_data_value_status
+        # TODO: use the presenter for auction --- or that TimeInWords
         "#{distance_of_time_in_words(Time.now, auction.end_datetime)} left"
       end
 

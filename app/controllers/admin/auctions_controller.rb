@@ -3,6 +3,8 @@ module Admin
     before_filter :require_admin
 
     def index
+      # 1) does something
+      # 2) present something
       @auctions = Auction.all.map {|auction| Presenter::Auction.new(auction) }
 
       respond_to do |format|
