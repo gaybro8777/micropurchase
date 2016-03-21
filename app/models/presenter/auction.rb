@@ -2,15 +2,20 @@ require 'action_view'
 
 module Presenter
   class Auction < SimpleDelegator
-    include ActiveModel::SerializerSupport
-    include ActionView::Helpers::DateHelper
-    include ActionView::Helpers::NumberHelper
+    include ActiveModel::SerializerSupport    # adds implicit connection to AuctionSerializer
+    include ActionView::Helpers::DateHelper   # distance_of_time_in_words
+    include ActionView::Helpers::NumberHelper # number_to_currency
 
     def user_can_bid?(user)
-      return false unless available?
-      return false if user && !user.sam_account?
-      return false if single_bid? && user_is_bidder?(user)
-      true
+      if !available? # not_avaliable?
+        false
+      elsif user && !user.sam_account? #user_without_sam_account?
+        false
+      elsif single_bid? && user_is_bidder?(user) # single_bid_already_attempted_by_user?
+        false
+      else # no user or user with same or singlebid first bid or multibid
+        true
+      end
     end
 
     def current_bid?
@@ -22,6 +27,7 @@ module Presenter
       Presenter::Bid.new(current_bid_record)
     end
 
+    # this should be moved down into the bid and null bid objects
     def current_max_bid
       if current_bid.is_a?(Presenter::Bid::Null)
         return start_price - PlaceBid::BID_INCREMENT
@@ -36,6 +42,7 @@ module Presenter
     delegate :bidder_name, :bidder_duns_number,
              to: :current_bid, prefix: :current
 
+    # this also needs to move down into the bid/null bid
     def current_bid_amount_as_currency
       number_to_currency(current_bid_amount)
     end
@@ -61,13 +68,13 @@ module Presenter
       # Presenter::Bid to veil certain attributes.
 
       # redact all bids if auction is still running and type is single bid
-      if available? && single_bid?
-        return [] if user.nil?
-        return bids.select {|bid| bid.bidder_id == user.id}
+      if available? && single_bid? && user.nil?
+        []
+      elsif available? && single_bid?
+        bids.select {|bid| bid.bidder_id == user.id}
+      else
+        bids
       end
-
-      # otherwise, return all the bids
-      return bids
     end
 
     def bid_count
@@ -82,15 +89,8 @@ module Presenter
       Presenter::DcTime.convert_and_format(model.end_datetime)
     end
 
-    def formatted_type
-      return 'multi-bid'  if model.type == 'multi_bid'
-      return 'single-bid' if model.type == 'single_bid'
-    end
-
-    def type
-      model.type
-    end
-
+    # --- the next three methods are all the same except for the attribute
+    # there should be something to deal with this
     def starts_in
       distance = distance_of_time_in_words(Time.now, model.start_datetime)
       if model.start_datetime < Time.now
@@ -118,6 +118,16 @@ module Presenter
       end
     end
 
+    # isn't the same as starts_in?
+    def human_start_time
+      if start_datetime < Time.now
+        # this method comes from the included date helpers
+        "#{distance_of_time_in_words(Time.now, start_datetime)} ago"
+      else
+        "in #{distance_of_time_in_words(Time.now, start_datetime)}"
+      end
+    end
+
     # rubocop:disable Style/DoubleNegation
     def available?
       !!(
@@ -140,25 +150,15 @@ module Presenter
     end
 
     def user_is_winning_bidder?(user)
-      return false unless current_bid?
-      user.id == winning_bidder_id
+      if !current_bid?
+        false
+      else
+        user.id == winning_bidder_id
+      end
     end
 
-    def winning_bidder
-      winning_bid.bidder rescue nil
-    end
-
-    def winning_bid
-      return single_bid_winning_bid if single_bid?
-      return multi_bid_winning_bid  if multi_bid?
-    end
-
-    def winning_bidder_id
-      winning_bid.bidder_id rescue nil
-    end
-
-    def winning_bid_id
-      winning_bid.id rescue nil
+    def type
+      model.type
     end
 
     def single_bid?
@@ -169,10 +169,47 @@ module Presenter
       model.type == 'multi_bid'
     end
 
+    def formatted_type
+      if model.type == 'multi_bid'
+        'multi-bid'
+      elsif model.type = 'single_bid'
+        'single-bid'
+      else
+        # nil ??
+      end
+    end
+
+    def winning_bid
+      if single_bid?
+        single_bid_winning_bid
+      elsif multi_bid?
+        multi_bid_winning_bid
+      else
+        # ?? nil
+      end
+    end
+
+    # --- NULL OBJECT FOR NEXT THREE METHODS, started in the one above
+    def winning_bidder
+      winning_bid.bidder rescue nil
+    end
+
+    def winning_bidder_id
+      winning_bid.bidder_id rescue nil
+    end
+
+    def winning_bid_id
+      winning_bid.id rescue nil
+    end
+
     def single_bid_winning_bid
-      return nil if available?
-      return lowest_bids.first if lowest_bids.length == 1
-      return lowest_bids.sort_by(&:created_at).first
+      if available?
+        nil
+      elsif lowest_bids.length == 1
+        lowest_bids.first
+      else
+        lowest_bids.sort_by(&:created_at).first
+      end
     end
 
     def multi_bid_winning_bid
@@ -203,10 +240,14 @@ module Presenter
 
     def lowest_user_bid_amount(user)
       bid = lowest_user_bid(user)
-      bid.nil? ? nil : bid.amount
+      # null pattern again
+      if bid
+        bid.amount
+      else
+        nil
+      end
     end
-    
-    
+
     def html_description
       return '' if description.blank?
       markdown.render(description)
@@ -228,14 +269,6 @@ module Presenter
     delegate :label_class, :label, :tag_data_value_status, :tag_data_label_2, :tag_data_value_2,
              to: :status_presenter
 
-    def human_start_time
-      if start_datetime < Time.now
-        # this method comes from the included date helpers
-        "#{distance_of_time_in_words(Time.now, start_datetime)} ago"
-      else
-        "in #{distance_of_time_in_words(Time.now, start_datetime)}"
-      end
-    end
 
     private
 
