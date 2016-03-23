@@ -29,6 +29,30 @@ class AuctionsController < ApplicationController
   def multi_bid_rules
   end
 
+  def previous_winners
+    collection = AuctionQuery.new.public_index
+    @view_model = ViewModel::AuctionsIndex.new(current_user, collection)
+
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: @view_model.auctions, each_serializer: AuctionSerializer
+      end
+    end
+  end
+
+  def metrics
+    collection = AuctionQuery.new.public_index
+    @view_model = ViewModel::AuctionsIndex.new(current_user, collection)
+
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: @view_model.auctions, each_serializer: AuctionSerializer
+      end
+    end
+  end
+
   rescue_from 'ActiveRecord::RecordNotFound' do
     respond_to do |format|
       format.html do
