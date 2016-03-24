@@ -41,9 +41,8 @@ $(function(){
     },
     data: {
       columns: [
-        ['Vendors', 5, 20, 25, 40, 60, 100],
-        ['Open-source projects', 5, 6, 7, 8, 9, 12],
-        ['Auctions', 13, 10, 14, 20, 50, 10]
+        ['Median winning bid ($)', 0, 0, 0, 0, 0, 0],
+        ['Bids/auction', 0, 0, 0, 0, 0, 0]
       ],
       axes: {
         'Median winning bid ($)': 'y',
@@ -64,6 +63,27 @@ $(function(){
     color: {
       pattern: ['#1C304A','#00CFFF','#046B99','#B3EFFF']
     }
+  });
+
+  var loadAuctionsChart = function loadAuctionsChart () {
+    chartAuctions.load({
+      columns: [
+        ['Median winning bid ($)', 5, 100, 200, 300, 500, 250],
+        ['Bids/auction', 5, 5, 4, 10, 12, 4]
+      ]
+    });
+  }
+
+  // Create auctions waypoint trigger
+  var auctionsWaypoint = new Waypoint({
+    element: document.querySelector('#auctions'),
+    handler: function() {
+      this.destroy();
+      setTimeout(function () {
+        loadAuctionsChart();
+      }, 500 );
+    },
+    offset: '50%'
   });
 
   /* Community Chart
