@@ -46,13 +46,6 @@
    }
   }
 
-  // @include media($jumbo-screen) {
-  //  @include span-columns(2);
-
-  //  &:last-child {
-  //   @include omega();
-  //  }
-  // }
 }
 
 .hero-metric_number {
@@ -61,4 +54,67 @@
 
 .hero-metric_description {
   margin-bottom: 0;
+}
+
+
+// Winners Archive
+
+.winners-archive-page {
+  padding-bottom: $site-margins;
+  padding-top: $site-margins;
+}
+
+.winners-title,
+.winners-title:visited {
+  @extend h3;
+  // color: $color-white;
+}
+
+.winners-header {
+  border-bottom: 2px solid $color-gray-neutral;
+
+  margin-bottom: $base-padding;
+  padding-bottom: $base-padding-lite;
+}
+
+.winners-header_name {
+  @extend h3;
+  font-weight: $font-normal;
+  text-align: left;
+}
+
+.winners-header_bid {
+  font-weight: $font-normal;
+  text-align: left;
+}
+
+@include media($medium-screen) {
+  .winners-header_name {
+    font-size: $base-font-size;
+    line-height: $base-line-height;
+    margin: 0;
+  }
+
+  .winners-header_bid {
+    text-align: right;
+  }
+}
+
+
+.winners-list-item .issue-bid-details {
+  background-color: $branding-light;
+  color: $branding-darkest;
+}
+
+.winners-list-item .issue-bids-info-item {
+  float: right;
+  margin-right: 0;
+}
+
+.winners-heading {
+  float: left;
+}
+
+.winners-filter {
+  float: right;
 }

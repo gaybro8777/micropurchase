@@ -1,5 +1,45 @@
 $(function(){
 
+
+ var auctionsURL = $('#previous-opportunities').data()
+
+ console.log(auctionsURL);
+ // $.get(auctionsURL, function(data,error){
+ //  console.log(data, error)
+ // })
+
+
+  // Helper functions
+  // TODO: export helpers
+  var micropurchase = {}
+
+  micropurchase.format = function(format) {
+    return (typeof format === 'function')
+      ? format
+      : d3.format(format);
+  };
+
+  micropurchase.format.transform = function(format, transform) {
+    format = micropurchase.format(format);
+    return function(d) {
+      return transform(format(d) || '');
+    };
+  };
+
+  micropurchase.format.transformDollars = function(str) {
+    if (str.charAt(0) === '-') {
+      str = '–' + str.substr(1)
+    }
+    return '$' + str;
+  };
+
+  micropurchase.format.commaSeparatedDollars = micropurchase.format.transform(
+    ',.0f',
+    micropurchase.format.transformDollars
+  );
+
+
+
   /* Auctions Chart
    * Categories:
    * * Average winning bid
@@ -39,18 +79,28 @@ $(function(){
         }
       }
     },
+    tooltip: {
+      format: {
+        value: function (value, ratio, id, index) {
+          return 'Median winning bid' == id
+            ? micropurchase.format.commaSeparatedDollars(value)
+            : value;
+        }
+      }
+    },
     data: {
       columns: [
-        ['Median winning bid ($)', 0, 0, 0, 0, 0, 0],
+        ['Median winning bid', 0, 0, 0, 0, 0, 0],
         ['Bids/auction', 0, 0, 0, 0, 0, 0]
       ],
       axes: {
-        'Median winning bid ($)': 'y',
+        'Median winning bid': 'y',
         'Bids/auction': 'y2'
       },
       labels: {
         format: {
-          'Median winning bid ($)': d3.format('$'),
+          'Median winning bid': d3.format('.> $,'),
+          'Bids/auction': true
         }
       },
       type: 'bar'
@@ -68,7 +118,7 @@ $(function(){
   var loadAuctionsChart = function loadAuctionsChart () {
     chartAuctions.load({
       columns: [
-        ['Median winning bid ($)', 5, 100, 200, 300, 500, 250],
+        ['Median winning bid', 5, 100, 2000, 300, 500, 250],
         ['Bids/auction', 5, 5, 4, 10, 12, 4]
       ]
     });
@@ -83,7 +133,7 @@ $(function(){
         loadAuctionsChart();
       }, 500 );
     },
-    offset: '50%'
+    offset: 'top-in-view'
   });
 
   /* Community Chart
@@ -117,6 +167,13 @@ $(function(){
         ['Open-source projects', 0, 0, 0, 0, 0, 0],
         ['Auctions', 0, 0, 0, 0, 0, 0]
       ],
+      labels: {
+        format: {
+          'Vendors': true,
+          'Open-source projects': true,
+          'Auctions': true
+        }
+      },
       type: 'bar'
     },
     bar: {
@@ -148,7 +205,9 @@ $(function(){
         loadCommunityChart();
       }, 500 );
     },
-    offset: '50%'
+    offset: function() {
+      return 1.5 * this.element.clientHeight
+    }
   });
 
   /* Project Types Chart
@@ -260,7 +319,9 @@ $(function(){
       this.destroy();
       loadDonuts();
     },
-    offset: '50%'
+    offset: function() {
+      return 1.5 * this.element.clientHeight
+    }
   });
 
 });
