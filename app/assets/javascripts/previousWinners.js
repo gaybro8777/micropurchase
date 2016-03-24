@@ -41,8 +41,9 @@ $(function(){
     },
     data: {
       columns: [
-        ['Median winning bid ($)', 5, 100, 200, 300, 500, 250],
-        ['Bids/auction', 5, 5, 4, 10, 12, 4]
+        ['Vendors', 5, 20, 25, 40, 60, 100],
+        ['Open-source projects', 5, 6, 7, 8, 9, 12],
+        ['Auctions', 13, 10, 14, 20, 50, 10]
       ],
       axes: {
         'Median winning bid ($)': 'y',
@@ -64,7 +65,6 @@ $(function(){
       pattern: ['#1C304A','#00CFFF','#046B99','#B3EFFF']
     }
   });
-
 
   /* Community Chart
    * Categories:
@@ -93,9 +93,9 @@ $(function(){
     },
     data: {
       columns: [
-        ['Vendors', 5, 20, 25, 40, 60, 100],
-        ['Open-source projects', 5, 6, 7, 8, 9, 12],
-        ['Auctions', 13, 10, 14, 20, 50, 10]
+        ['Vendors', 0, 0, 0, 0, 0, 0],
+        ['Open-source projects', 0, 0, 0, 0, 0, 0],
+        ['Auctions', 0, 0, 0, 0, 0, 0]
       ],
       type: 'bar'
     },
@@ -109,6 +109,28 @@ $(function(){
     }
   });
 
+  var loadCommunityChart = function loadCommunityChart () {
+    chartCommunity.load({
+      columns: [
+        ['Vendors', 5, 20, 25, 40, 60, 100],
+        ['Open-source projects', 5, 6, 7, 8, 9, 12],
+        ['Auctions', 13, 10, 14, 20, 50, 10]
+      ]
+    });
+  }
+
+  // Create community waypoint trigger
+  var communityWaypoint = new Waypoint({
+    element: document.querySelector('#community'),
+    handler: function() {
+      this.destroy();
+      setTimeout(function () {
+        loadCommunityChart();
+      }, 500 );
+    },
+    offset: '50%'
+  });
+
   /* Project Types Chart
    * We need to have tags attached to auctions
  */
@@ -119,10 +141,7 @@ $(function(){
         ['software', 0],
         ['non-software', 120],
       ],
-      type : 'donut',
-      onclick: function (d, i) { console.log("onclick", d, i); },
-      onmouseover: function (d, i) { console.log("onmouseover", d, i); },
-      onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+      type : 'donut'
     },
     donut: {
       title: "Projects by type"
@@ -153,10 +172,7 @@ $(function(){
         ['design', 0],
         ['user research', 10]
       ],
-      type : 'donut',
-      onclick: function (d, i) { console.log("onclick", d, i); },
-      onmouseover: function (d, i) { console.log("onmouseover", d, i); },
-      onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+      type : 'donut'
     },
     donut: {
       title: "Software by type"
@@ -188,10 +204,7 @@ $(function(){
         ['design', 0],
         ['user research', 10]
       ],
-      type : 'donut',
-      onclick: function (d, i) { console.log("onclick", d, i); },
-      onmouseover: function (d, i) { console.log("onmouseover", d, i); },
-      onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+      type : 'donut'
     },
     donut: {
       title: "Software by dollars"
@@ -217,17 +230,17 @@ $(function(){
       loadProjectTypes();
       loadSoftwareTypes();
       loadSoftwareDollars();
-    }, 1500);
+    }, 500);
   }
 
+  // Create donuts waypoint trigger
   var donutWaypoint = new Waypoint({
     element: document.querySelector('#chart-donuts'),
     handler: function() {
+      this.destroy();
       loadDonuts();
-      console.log('Basic waypoint triggered')
-      this.destroy()
     },
-    offset: "100%"
+    offset: '50%'
   });
 
 });
