@@ -29,7 +29,7 @@ class AuctionsController < ApplicationController
   def multi_bid_rules
   end
 
-  def previous_winners
+  def previous_winners_archive
     collection = AuctionQuery.new.public_index
     @view_model = ViewModel::AuctionsIndex.new(current_user, collection)
 
@@ -41,7 +41,7 @@ class AuctionsController < ApplicationController
     end
   end
 
-  def metrics
+  def previous_winners
     collection = AuctionQuery.new.public_index
     @view_model = ViewModel::AuctionsIndex.new(current_user, collection)
 

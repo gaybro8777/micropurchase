@@ -30,14 +30,29 @@ $(function(){
           count: 4,
           format: function (d) { return Math.round(d); }
         }
+      },
+      y2: {
+        show: true,
+        tick: {
+          count: 4,
+          format: function (d) { return Math.round(d); }
+        }
       }
     },
-
     data: {
       columns: [
-        ['Average winning bid ($)', 30, 200, 100, 400, 150, 250],
-        ['Bids/auction', 130, 100, 140, 200, 150, 50]
+        ['Median winning bid ($)', 5, 100, 200, 300, 500, 250],
+        ['Bids/auction', 5, 5, 4, 10, 12, 4]
       ],
+      axes: {
+        'Median winning bid ($)': 'y',
+        'Bids/auction': 'y2'
+      },
+      labels: {
+        format: {
+          'Median winning bid ($)': d3.format('$'),
+        }
+      },
       type: 'bar'
     },
     bar: {
@@ -78,9 +93,9 @@ $(function(){
     },
     data: {
       columns: [
-        ['Vendors', 30, 200, 100, 400, 150, 250],
-        ['Open-source projects', 130, 100, 140, 200, 150, 50],
-        ['Auctions', 13, 10, 140, 600, 50, 550]
+        ['Vendors', 5, 20, 25, 40, 60, 100],
+        ['Open-source projects', 5, 6, 7, 8, 9, 12],
+        ['Auctions', 13, 10, 14, 20, 50, 10]
       ],
       type: 'bar'
     },
@@ -101,7 +116,7 @@ $(function(){
     bindto: "#chart-project-types",
     data: {
       columns: [
-        ['software', 300],
+        ['software', 0],
         ['non-software', 120],
       ],
       type : 'donut',
@@ -117,13 +132,13 @@ $(function(){
     }
   });
 
-  setTimeout(function () {
+  var loadProjectTypes = function loadProjectTypes () {
     chartProjectTypes.load({
       columns: [
       ["software", 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.1, 0.2, 0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.4, 0.2, 0.5, 0.2, 0.2, 0.4, 0.2, 0.2, 0.2, 0.2, 0.4, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.2, 0.2, 0.3, 0.3, 0.2, 0.6, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2],
       ["non-software", 1.4, 1.5, 1.5, 1.3, 1.5, 1.3, 1.6, 1.0, 1.3, 1.4, 1.0, 1.5, 1.0, 1.4, 1.3, 1.4, 1.5, 1.0, 1.5, 1.1, 1.8, 1.3, 1.5, 1.2, 1.3, 1.4, 1.4, 1.7, 1.5, 1.0, 1.1, 1.0, 1.2, 1.6, 1.5, 1.6, 1.5, 1.3, 1.3, 1.3, 1.2, 1.4, 1.2, 1.0, 1.3, 1.2, 1.3, 1.3, 1.1, 1.3]        ]
     });
-  }, 1500);
+  }
 
 
   /* Software Types Chart
@@ -133,10 +148,10 @@ $(function(){
     bindto: "#chart-software-types",
     data: {
       columns: [
-        ['feature', 300],
-        ['bug', 120],
-        ['design', 12],
-        ['user research', 1200]
+        ['feature', 0],
+        ['bug', 0],
+        ['design', 0],
+        ['user research', 10]
       ],
       type : 'donut',
       onclick: function (d, i) { console.log("onclick", d, i); },
@@ -151,7 +166,7 @@ $(function(){
     }
   });
 
-  setTimeout(function () {
+  var loadSoftwareTypes = function loadSoftwareTypes () {
     chartSoftwareTypes.load({
       columns: [
       ["feature", 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2, 20.2, 0.1, 0.1, 0.2, 0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.4, 0.2, 0.5, 0.2, 0.2, 0.4, 0.2, 0.2, 0.2, 0.2, 0.4, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.2, 0.2, 0.3, 0.3, 0.2, 0.6, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2],
@@ -160,7 +175,7 @@ $(function(){
       ["user research", 11.4, 1.5, 1.5, 1.3, 1.5, 1.3, 1.6, 1.0, 1.3, 1.4, 1.0, 1.5, 1.0, 1.4, 1.3, 1.4, 1.5, 1.0, 1.5, 1.1, 1.8, 1.3, 1.5, 1.2, 1.3, 1.4, 1.4, 1.7, 1.5, 1.0, 1.1, 1.0, 1.2, 1.6, 1.5, 1.6, 1.5, 1.3, 1.3, 1.3, 1.2, 1.4, 1.2, 1.0, 1.3, 1.2, 1.3, 1.3, 1.1, 1.3]
     ]
     });
-  }, 1500);
+  }
 
 
   // Software Dollars Chart
@@ -168,10 +183,10 @@ $(function(){
     bindto: "#chart-software-dollars",
     data: {
       columns: [
-        ['feature', 300],
-        ['bug', 120],
-        ['design', 12],
-        ['user research', 1200]
+        ['feature', 0],
+        ['bug', 0],
+        ['design', 0],
+        ['user research', 10]
       ],
       type : 'donut',
       onclick: function (d, i) { console.log("onclick", d, i); },
@@ -186,7 +201,7 @@ $(function(){
     }
   });
 
-  setTimeout(function () {
+  var loadSoftwareDollars = function loadSoftwareDollars () {
     chartSoftwareDollars.load({
       columns: [
         ["feature", 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.1, 0.2, 0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.4, 0.2, 0.5, 0.2, 0.2, 0.4, 0.2, 0.2, 0.2, 0.2, 0.4, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.2, 0.2, 0.3, 0.3, 0.2, 0.6, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2],
@@ -195,7 +210,25 @@ $(function(){
         ["user research", 1.4, 1.5, 1.5, 13.3, 1.5, 1.3, 1.6, 1.0, 1.3, 1.4, 1.0, 1.5, 1.0, 1.4, 1.3, 1.4, 1.5, 1.0, 1.5, 1.1, 1.8, 1.3, 1.5, 1.2, 1.3, 1.4, 1.4, 1.7, 1.5, 1.0, 1.1, 1.0, 1.2, 1.6, 1.5, 1.6, 1.5, 1.3, 1.3, 1.3, 1.2, 1.4, 1.2, 1.0, 1.3, 1.2, 1.3, 1.3, 1.1, 1.3]
       ]
     });
-  }, 1500);
+  }
+
+  var loadDonuts = function loadDonuts () {
+    setTimeout(function () {
+      loadProjectTypes();
+      loadSoftwareTypes();
+      loadSoftwareDollars();
+    }, 1500);
+  }
+
+  var donutWaypoint = new Waypoint({
+    element: document.querySelector('#chart-donuts'),
+    handler: function() {
+      loadDonuts();
+      console.log('Basic waypoint triggered')
+      this.destroy()
+    },
+    offset: "100%"
+  });
 
 });
 
