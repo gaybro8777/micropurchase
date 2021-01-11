@@ -254,7 +254,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rainbow (2.1.0)
     rake (10.5.0)
-    redcarpet (3.3.4)
+    redcarpet (3.5.1)
     rest-client (1.8.0)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
